@@ -9,6 +9,7 @@ import { getAuth } from "firebase/auth";
 const firebaseConfig = {
   apiKey: "AIzaSyAEXKjXJ4yUp0fUfDFqZJ07zQxkNbHboDQ",
   authDomain: "firestoredb-ce442.firebaseapp.com",
+  databaseURL: "https://firestoredb-ce442-default-rtdb.firebaseio.com",
   projectId: "firestoredb-ce442",
   storageBucket: "firestoredb-ce442.appspot.com",
   messagingSenderId: "677716890230",

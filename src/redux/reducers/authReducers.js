@@ -1,8 +1,11 @@
-import { LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT, REGISTER_SUCCESS, REGISTER_FAILURE } from '../types';
+// src/redux/reducers/authReducer.js
+
+import { LOGIN_SUCCESS, LOGIN_FAIL, REGISTER_SUCCESS, REGISTER_FAIL, LOGOUT } from '../actions/types';
 
 const initialState = {
-  user: JSON.parse(localStorage.getItem('user')) || null,
-  error: null,
+  isAuthenticated: false,
+  user: null,
+  error: null
 };
 
 const authReducer = (state = initialState, action) => {
@@ -11,19 +14,20 @@ const authReducer = (state = initialState, action) => {
     case REGISTER_SUCCESS:
       return {
         ...state,
-        user: action.payload.user,
-        error: null,
+        isAuthenticated: true,
+        user: action.payload
       };
-    case LOGIN_FAILURE:
-    case REGISTER_FAILURE:
+    case LOGIN_FAIL:
+    case REGISTER_FAIL:
       return {
         ...state,
-        error: action.payload,
+        error: action.payload
       };
     case LOGOUT:
       return {
         ...state,
-        user: null,
+        isAuthenticated: false,
+        user: null
       };
     default:
       return state;

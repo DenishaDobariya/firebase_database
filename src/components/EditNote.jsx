@@ -1,59 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { editNote } from '../redux/actions/noteActions';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Container, Form, Button } from 'react-bootstrap';
+import { fetchNote, updateNote } from '../redux/actions/noteActions';
 
 const EditNote = () => {
-  const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { notes } = useSelector((state) => state.noteReducer);
-  const note = notes.find(note => note.id === id);
+  const { id } = useParams();
+  const note = useSelector((state) =>
+    state.notes.find((note) => note.id === id)
+  );
 
-  const [title, setTitle] = useState(note?.title || '');
-  const [content, setContent] = useState(note?.content || '');
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
 
   useEffect(() => {
-    if (!note) {
-      navigate('/');
+    if (id) {
+      dispatch(fetchNote(id)).then((fetchedNote) => {
+        if (fetchedNote) {
+          setTitle(fetchedNote.title);
+          setContent(fetchedNote.content);
+        }
+      });
     }
-  }, [note, navigate]);
+  }, [id, dispatch]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(editNote(id, { title, content }));
-    navigate('/');
+    dispatch(updateNote({ id, title, content }))
+      .then(() => navigate('/home')) // Redirect to HomePage on successful update
+      .catch((error) => console.error('Error updating note:', error));
   };
 
   return (
-    <Container className="my-4">
-      <h2>Edit Note</h2>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3" controlId="formTitle">
-          <Form.Label>Title</Form.Label>
-          <Form.Control
+    <div className="container">
+      <h1>Edit Note</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <input
             type="text"
-            placeholder="Enter title"
+            placeholder="Title"
+            className="form-control"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            required
           />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formContent">
-          <Form.Label>Content</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            placeholder="Enter content"
+        </div>
+        <div className="mb-3">
+          <textarea
+            placeholder="Content"
+            className="form-control"
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            required
           />
-        </Form.Group>
-        <Button variant="primary" type="submit">
-          Update Note
-        </Button>
-      </Form>
-    </Container>
+        </div>
+        <button type="submit" className="btn btn-primary">Update Note</button>
+      </form>
+    </div>
   );
 };
 

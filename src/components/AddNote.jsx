@@ -1,49 +1,50 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNote } from '../redux/actions/noteActions';
-import { Container, Form, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 const AddNote = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Initialize useNavigate
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(addNote({ title, content }));
-    navigate('/');
+    try {
+      await dispatch(addNote({ title, content }));
+      navigate('/home'); // Redirect to HomePage after adding note
+    } catch (error) {
+      console.error('Error adding note:', error);
+    }
   };
 
   return (
-    <Container className="my-4">
-      <h2>Add Note</h2>
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3" controlId="formTitle">
-          <Form.Label>Title</Form.Label>
-          <Form.Control
+    <div className="container">
+      <h1>Add Note</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <input
             type="text"
-            placeholder="Enter title"
+            placeholder="Title"
+            className="form-control"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            required
           />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formContent">
-          <Form.Label>Content</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={3}
-            placeholder="Enter content"
+        </div>
+        <div className="mb-3">
+          <textarea
+            placeholder="Content"
+            className="form-control"
             value={content}
             onChange={(e) => setContent(e.target.value)}
+            required
           />
-        </Form.Group>
-        <Button variant="primary" type="submit">
-          Add Note
-        </Button>
-      </Form>
-    </Container>
+        </div>
+        <button type="submit" className="btn btn-primary">Add Note</button>
+      </form>
+    </div>
   );
 };
 

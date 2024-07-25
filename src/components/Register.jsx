@@ -1,93 +1,106 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { register } from '../redux/actions/authActions';
-import { Container, Form, Button, Alert } from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { registerUser } from '../redux/actions/authActions';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { error } = useSelector((state) => state.authReducer);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
+  const [error, setError] = useState(null);
 
-  const handleSubmit = async (e) => {
+  const { firstName, lastName, email, password, confirmPassword } = formData;
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
-
     if (password !== confirmPassword) {
-      setPasswordError('Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
 
-    setPasswordError('');
-    try {
-      await dispatch(register({ firstName, lastName, email, password }));
-      navigate('/login');
-    } catch (err) {
-      console.error('Registration failed:', err);
-    }
+    dispatch(registerUser({ firstName, lastName, email, password }))
+      .then(() => navigate('/login'))
+      .catch(err => setError(err.message));
   };
 
   return (
-    <Container className="my-4">
+    <div className="container">
       <h2>Register</h2>
-      {error && <Alert variant="danger">{error}</Alert>}
-      {passwordError && <Alert variant="danger">{passwordError}</Alert>}
-      <Form onSubmit={handleSubmit}>
-        <Form.Group className="mb-3" controlId="formBasicFirstName">
-          <Form.Label>First Name</Form.Label>
-          <Form.Control
+      {error && <div className="alert alert-danger">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label htmlFor="firstName" className="form-label">First Name</label>
+          <input
             type="text"
-            placeholder="Enter first name"
+            className="form-control"
+            id="firstName"
+            name="firstName"
             value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+            onChange={handleChange}
+            required
           />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicLastName">
-          <Form.Label>Last Name</Form.Label>
-          <Form.Control
+        </div>
+        <div className="mb-3">
+          <label htmlFor="lastName" className="form-label">Last Name</label>
+          <input
             type="text"
-            placeholder="Enter last name"
+            className="form-control"
+            id="lastName"
+            name="lastName"
             value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+            onChange={handleChange}
+            required
           />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          <Form.Label>Email address</Form.Label>
-          <Form.Control
+        </div>
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">Email</label>
+          <input
             type="email"
-            placeholder="Enter email"
+            className="form-control"
+            id="email"
+            name="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={handleChange}
+            required
           />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicPassword">
-          <Form.Label>Password</Form.Label>
-          <Form.Control
+        </div>
+        <div className="mb-3">
+          <label htmlFor="password" className="form-label">Password</label>
+          <input
             type="password"
-            placeholder="Password"
+            className="form-control"
+            id="password"
+            name="password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handleChange}
+            required
           />
-        </Form.Group>
-        <Form.Group className="mb-3" controlId="formBasicConfirmPassword">
-          <Form.Label>Confirm Password</Form.Label>
-          <Form.Control
+        </div>
+        <div className="mb-3">
+          <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
+          <input
             type="password"
-            placeholder="Confirm Password"
+            className="form-control"
+            id="confirmPassword"
+            name="confirmPassword"
             value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
+            onChange={handleChange}
+            required
           />
-        </Form.Group>
-        <Button variant="primary" type="submit">
-          Register
-        </Button>
-      </Form>
-    </Container>
+        </div>
+        <button type="submit" className="btn btn-primary">Register</button>
+      </form>
+    </div>
   );
 };
 

@@ -1,36 +1,22 @@
-import { ADD_NOTE, EDIT_NOTE, DELETE_NOTE, GET_NOTES } from '../types';
+import { ADD_NOTE, UPDATE_NOTE, DELETE_NOTE, FETCH_NOTES } from '../actions/types';
 
-const initialState = {
-  notes: [],
-};
+const initialState = [];
 
-const noteReducer = (state = initialState, action) => {
+const notesReducer = (state = initialState, action) => {
   switch (action.type) {
-    case GET_NOTES:
-      return {
-        ...state,
-        notes: action.payload,
-      };
     case ADD_NOTE:
-      return {
-        ...state,
-        notes: [...state.notes, action.payload],
-      };
-    case EDIT_NOTE:
-      return {
-        ...state,
-        notes: state.notes.map(note =>
-          note.id === action.payload.id ? action.payload : note
-        ),
-      };
+      return [...state, action.payload];
+    case UPDATE_NOTE:
+      return state.map(note =>
+        note.id === action.payload.id ? action.payload : note
+      );
     case DELETE_NOTE:
-      return {
-        ...state,
-        notes: state.notes.filter(note => note.id !== action.payload),
-      };
+      return state.filter(note => note.id !== action.payload);
+    case FETCH_NOTES:
+      return action.payload;
     default:
       return state;
   }
 };
 
-export default noteReducer;
+export default notesReducer;

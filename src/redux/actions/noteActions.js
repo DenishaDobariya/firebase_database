@@ -1,38 +1,48 @@
-import { ADD_NOTE, EDIT_NOTE, DELETE_NOTE, GET_NOTES } from '../types';
-import axios from 'axios';
+// src/redux/actions/noteActions.js
 
-export const getNotes = () => async (dispatch) => {
-  try {
-    const response = await axios.get('/api/notes');
-    dispatch({ type: GET_NOTES, payload: response.data });
-  } catch (error) {
-    console.error('Failed to fetch notes:', error);
-  }
-};
+import { ADD_NOTE, UPDATE_NOTE, DELETE_NOTE, FETCH_NOTES } from './types';
+import { db } from '../../firebase'; // Your Firebase configuration file
+import { collection, addDoc, doc, updateDoc, deleteDoc, getDocs } from 'firebase/firestore';
 
+// Add note action
 export const addNote = (note) => async (dispatch) => {
   try {
-    const response = await axios.post('/api/notes', note);
-    dispatch({ type: ADD_NOTE, payload: response.data });
+    const docRef = await addDoc(collection(db, 'notes'), note);
+    dispatch({ type: ADD_NOTE, payload: { ...note, id: docRef.id } });
   } catch (error) {
-    console.error('Failed to add note:', error);
+    console.error('Error adding note:', error);
   }
 };
 
-export const editNote = (id, updatedNote) => async (dispatch) => {
+// Update note action
+export const updateNote = (id, note) => async (dispatch) => {
   try {
-    const response = await axios.put(`/api/notes/${id}`, updatedNote);
-    dispatch({ type: EDIT_NOTE, payload: response.data });
+    const noteRef = doc(db, 'notes', id);
+    await updateDoc(noteRef, note);
+    dispatch({ type: UPDATE_NOTE, payload: { id, note } });
   } catch (error) {
-    console.error('Failed to edit note:', error);
+    console.error('Error updating note:', error);
   }
 };
 
+// Delete note action
 export const deleteNote = (id) => async (dispatch) => {
   try {
-    await axios.delete(`/api/notes/${id}`);
+    await deleteDoc(doc(db, 'notes', id));
     dispatch({ type: DELETE_NOTE, payload: id });
   } catch (error) {
-    console.error('Failed to delete note:', error);
+    console.error('Error deleting note:', error);
   }
 };
+
+// Fetch notes action
+export const fetchNotes = () => async (dispatch) => {
+  try {
+    const querySnapshot = await getDocs(collection(db, 'notes'));
+    const notes = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    dispatch({ type: FETCH_NOTES, payload: notes });
+  } catch (error) {
+    dispatch({ type: FETCH_NOTES_FAIL, payload: error.message });
+  }
+};
+

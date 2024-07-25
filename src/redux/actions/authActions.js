@@ -1,27 +1,35 @@
-import { LOGIN_SUCCESS, LOGIN_FAILURE, LOGOUT, REGISTER_SUCCESS, REGISTER_FAILURE } from '../types';
-import axios from 'axios';
+// src/redux/actions/authActions.js
 
-export const login = (email, password) => async (dispatch) => {
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { auth } from '../../firebase';
+import { LOGIN_SUCCESS, LOGIN_FAIL, REGISTER_SUCCESS, REGISTER_FAIL, LOGOUT } from './types';
+
+// Register action
+export const registerUser = (email, password) => async (dispatch) => {
   try {
-    const response = await axios.post('/api/auth/login', { email, password });
-    dispatch({ type: LOGIN_SUCCESS, payload: response.data });
-    localStorage.setItem('token', response.data.token);
+    await createUserWithEmailAndPassword(auth, email, password);
+    dispatch({ type: REGISTER_SUCCESS });
   } catch (error) {
-    dispatch({ type: LOGIN_FAILURE, payload: error.response.data.message });
+    dispatch({ type: REGISTER_FAIL, payload: error.message });
   }
 };
 
-export const logout = () => (dispatch) => {
-  localStorage.removeItem('token');
-  dispatch({ type: LOGOUT });
+// Login action
+export const loginUser = (email, password) => async (dispatch) => {
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    dispatch({ type: LOGIN_SUCCESS });
+  } catch (error) {
+    dispatch({ type: LOGIN_FAIL, payload: error.message });
+  }
 };
 
-export const register = (userData) => async (dispatch) => {
+// Logout action
+export const logoutUser = () => async (dispatch) => {
   try {
-    const response = await axios.post('/api/auth/register', userData);
-    dispatch({ type: REGISTER_SUCCESS, payload: response.data });
-    localStorage.setItem('token', response.data.token);
+    await signOut(auth);
+    dispatch({ type: LOGOUT });
   } catch (error) {
-    dispatch({ type: REGISTER_FAILURE, payload: error.response.data.message });
+    console.error("Error signing out:", error);
   }
 };
