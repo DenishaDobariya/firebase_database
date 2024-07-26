@@ -1,35 +1,43 @@
-// src/redux/actions/authActions.js
+import { AUTH_LOGIN, AUTH_LOGOUT, AUTH_REGISTER } from '../actions/types';
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from 'firebase/auth';
+import { app } from '../../firebase'; 
 
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth } from '../../firebase';
-import { LOGIN_SUCCESS, LOGIN_FAIL, REGISTER_SUCCESS, REGISTER_FAIL, LOGOUT } from './types';
+const auth = getAuth(app);
 
-// Register action
-export const registerUser = (email, password) => async (dispatch) => {
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    dispatch({ type: REGISTER_SUCCESS });
-  } catch (error) {
-    dispatch({ type: REGISTER_FAIL, payload: error.message });
-  }
-};
-
-// Login action
 export const loginUser = (email, password) => async (dispatch) => {
   try {
-    await signInWithEmailAndPassword(auth, email, password);
-    dispatch({ type: LOGIN_SUCCESS });
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    dispatch({
+      type: AUTH_LOGIN,
+      payload: userCredential.user,
+    });
   } catch (error) {
-    dispatch({ type: LOGIN_FAIL, payload: error.message });
+    throw error;
   }
 };
 
-// Logout action
+export const registerUser = (email, password, firstName, lastName) => async (dispatch) => {
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(userCredential.user, {
+      displayName: `${firstName} ${lastName}`,
+    });
+    dispatch({
+      type: AUTH_REGISTER,
+      payload: userCredential.user,
+    });
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const logoutUser = () => async (dispatch) => {
   try {
     await signOut(auth);
-    dispatch({ type: LOGOUT });
+    dispatch({
+      type: AUTH_LOGOUT,
+    });
   } catch (error) {
-    console.error("Error signing out:", error);
+    throw error;
   }
 };

@@ -1,45 +1,30 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import { logoutUser } from '../redux/actions/authActions'; // Correct import
+import { Navbar, Nav } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
 
 const Header = () => {
-  const dispatch = useDispatch();
-  const { user } = useSelector(state => state.auth);
-
-  const handleLogout = () => {
-    dispatch(logoutUser());
-  };
+  const user = useSelector(state => state.auth.user);
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
-      <div className="container">
-        <Link className="navbar-brand" to="/">MyApp</Link>
-        <div className="collapse navbar-collapse">
-          <ul className="navbar-nav mr-auto">
-            {!user ? (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/login">Login</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/register">Register</Link>
-                </li>
-              </>
-            ) : (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/add-note">Add Note</Link>
-                </li>
-                <li className="nav-item">
-                  <button className="btn btn-link nav-link" onClick={handleLogout}>Logout</button>
-                </li>
-              </>
-            )}
-          </ul>
-        </div>
-      </div>
-    </nav>
+    <Navbar bg="light" expand="lg">
+      <Navbar.Brand as={Link} to="/">My App</Navbar.Brand>
+      <Navbar.Toggle aria-controls="basic-navbar-nav" />
+      <Navbar.Collapse id="basic-navbar-nav">
+        <Nav className="ml-auto">
+          {user ? (
+            <>
+              <Nav.Link as={Link} to="/add">Add Note</Nav.Link>
+            </>
+          ) : (
+            <>
+              <Nav.Link as={Link} to="/login">Login</Nav.Link>
+              <Nav.Link as={Link} to="/register">Register</Nav.Link>
+            </>
+          )}
+        </Nav>
+      </Navbar.Collapse>
+    </Navbar>
   );
 };
 

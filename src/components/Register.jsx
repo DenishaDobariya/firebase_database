@@ -1,25 +1,18 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { registerUser } from '../redux/actions/authActions';
+import { Container, Form, Button, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [error, setError] = useState('');
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  });
-  const [error, setError] = useState(null);
-
-  const { firstName, lastName, email, password, confirmPassword } = formData;
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -27,80 +20,71 @@ const Register = () => {
       setError('Passwords do not match');
       return;
     }
-
-    dispatch(registerUser({ firstName, lastName, email, password }))
+    dispatch(registerUser(email, password, firstName, lastName))
       .then(() => navigate('/login'))
-      .catch(err => setError(err.message));
+      .catch(error => setError('Registration failed: ' + error.message));
   };
 
   return (
-    <div className="container">
+    <Container className="mt-5">
       <h2>Register</h2>
-      {error && <div className="alert alert-danger">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label htmlFor="firstName" className="form-label">First Name</label>
-          <input
+      {error && <Alert variant="danger">{error}</Alert>}
+      <Form onSubmit={handleSubmit}>
+        <Form.Group controlId="formFirstName">
+          <Form.Label>First Name</Form.Label>
+          <Form.Control
             type="text"
-            className="form-control"
-            id="firstName"
-            name="firstName"
+            placeholder="Enter first name"
             value={firstName}
-            onChange={handleChange}
+            onChange={(e) => setFirstName(e.target.value)}
             required
           />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="lastName" className="form-label">Last Name</label>
-          <input
+        </Form.Group>
+        <Form.Group controlId="formLastName">
+          <Form.Label>Last Name</Form.Label>
+          <Form.Control
             type="text"
-            className="form-control"
-            id="lastName"
-            name="lastName"
+            placeholder="Enter last name"
             value={lastName}
-            onChange={handleChange}
+            onChange={(e) => setLastName(e.target.value)}
             required
           />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="email" className="form-label">Email</label>
-          <input
+        </Form.Group>
+        <Form.Group controlId="formEmail">
+          <Form.Label>Email address</Form.Label>
+          <Form.Control
             type="email"
-            className="form-control"
-            id="email"
-            name="email"
+            placeholder="Enter email"
             value={email}
-            onChange={handleChange}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="password" className="form-label">Password</label>
-          <input
+        </Form.Group>
+        <Form.Group controlId="formPassword">
+          <Form.Label>Password</Form.Label>
+          <Form.Control
             type="password"
-            className="form-control"
-            id="password"
-            name="password"
+            placeholder="Password"
             value={password}
-            onChange={handleChange}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
-          <input
+        </Form.Group>
+        <Form.Group controlId="formConfirmPassword">
+          <Form.Label>Confirm Password</Form.Label>
+          <Form.Control
             type="password"
-            className="form-control"
-            id="confirmPassword"
-            name="confirmPassword"
+            placeholder="Confirm Password"
             value={confirmPassword}
-            onChange={handleChange}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             required
           />
-        </div>
-        <button type="submit" className="btn btn-primary">Register</button>
-      </form>
-    </div>
+        </Form.Group>
+        <Button variant="primary" type="submit">
+          Register
+        </Button>
+      </Form>
+    </Container>
   );
 };
 

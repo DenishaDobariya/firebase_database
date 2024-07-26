@@ -1,26 +1,27 @@
-// src/App.js
-
+// src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Container } from 'react-bootstrap';
 import Header from './components/Header';
-import LoginPage from './components/LoginPage';
-import Register from './components/Register';
-import HomePage from './components/HomePage';
+import Home from './components/Home';
 import AddNote from './components/AddNote';
 import EditNote from './components/EditNote';
+import Login from './components/Login';
+import Register from './components/Register';
 
 const App = () => {
   return (
     <Router>
       <Header />
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/home" element={<HomePage />} />
-        <Route path="/add-note" element={<AddNote />} />
-        <Route path="/edit-note/:id" element={<EditNote />} />
-        <Route path="/" element={<LoginPage />} />
-      </Routes>
+      <Container>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/add" element={<AddNote />} />
+          <Route path="/edit/:id" element={<EditNote />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </Container>
     </Router>
   );
 };

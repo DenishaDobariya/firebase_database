@@ -1,48 +1,73 @@
-// src/redux/actions/noteActions.js
+import { collection, addDoc, updateDoc, deleteDoc, getDocs, doc, getDoc } from 'firebase/firestore';
+import { db } from '../../firebase'; 
+import { ADD_NOTE, UPDATE_NOTE, DELETE_NOTE, FETCH_NOTES, FETCH_NOTE } from '../actions/types';
 
-import { ADD_NOTE, UPDATE_NOTE, DELETE_NOTE, FETCH_NOTES } from './types';
-import { db } from '../../firebase'; // Your Firebase configuration file
-import { collection, addDoc, doc, updateDoc, deleteDoc, getDocs } from 'firebase/firestore';
-
-// Add note action
 export const addNote = (note) => async (dispatch) => {
   try {
-    const docRef = await addDoc(collection(db, 'notes'), note);
-    dispatch({ type: ADD_NOTE, payload: { ...note, id: docRef.id } });
+    const notesCollection = collection(db, 'notes');
+    const docRef = await addDoc(notesCollection, note);
+    dispatch({
+      type: ADD_NOTE,
+      payload: { id: docRef.id, ...note },
+    });
   } catch (error) {
-    console.error('Error adding note:', error);
+    throw error;
   }
 };
 
-// Update note action
 export const updateNote = (id, note) => async (dispatch) => {
   try {
-    const noteRef = doc(db, 'notes', id);
-    await updateDoc(noteRef, note);
-    dispatch({ type: UPDATE_NOTE, payload: { id, note } });
+    const noteDoc = doc(db, 'notes', id);
+    await updateDoc(noteDoc, note);
+    dispatch({
+      type: UPDATE_NOTE,
+      payload: { id, ...note },
+    });
   } catch (error) {
-    console.error('Error updating note:', error);
+    throw error;
   }
 };
 
-// Delete note action
 export const deleteNote = (id) => async (dispatch) => {
   try {
-    await deleteDoc(doc(db, 'notes', id));
-    dispatch({ type: DELETE_NOTE, payload: id });
+    const noteDoc = doc(db, 'notes', id);
+    await deleteDoc(noteDoc);
+    dispatch({
+      type: DELETE_NOTE,
+      payload: id,
+    });
   } catch (error) {
-    console.error('Error deleting note:', error);
+    throw error;
   }
 };
 
-// Fetch notes action
 export const fetchNotes = () => async (dispatch) => {
   try {
-    const querySnapshot = await getDocs(collection(db, 'notes'));
-    const notes = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    dispatch({ type: FETCH_NOTES, payload: notes });
+    const notesCollection = collection(db, 'notes');
+    const snapshot = await getDocs(notesCollection);
+    const notes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    dispatch({
+      type: FETCH_NOTES,
+      payload: notes,
+    });
   } catch (error) {
-    dispatch({ type: FETCH_NOTES_FAIL, payload: error.message });
+    throw error;
   }
 };
 
+export const getNote = (id) => async (dispatch) => {
+  try {
+    const noteDoc = doc(db, 'notes', id);
+    const docSnap = await getDoc(noteDoc);
+    if (docSnap.exists()) {
+      dispatch({
+        type: FETCH_NOTE,
+        payload: { id: docSnap.id, ...docSnap.data() },
+      });
+    } else {
+      throw new Error('Note not found');
+    }
+  } catch (error) {
+    throw error;
+  }
+};
